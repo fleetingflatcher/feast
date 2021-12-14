@@ -51,14 +51,13 @@ public:
 	COORD eat_at;
 	enum direction {
 		north, east, south, west
-	}compass;
+	} compass;
 	int N, E, S, W;		// 'eat' count for each cardinal direction
 	int tilesEmpty, bonus_tilesFilled, pnlty_tilesDestroyed;
 
 
 public:
 	short ray[BD_SZ][BD_SZ];
-	COORD drawLoc[BD_SZ][BD_SZ];
 	COORD c_grab; bool _grabbing, _eating;
 	//Constructor
 	Board() {
@@ -66,6 +65,80 @@ public:
 		N = E = S = W = tilesEmpty = 0;
 		clear(); _grabbing = false;
 	}
+	/*
+	screenLocation(int, int): returns the location on the screen of the argument tile coordinates.
+	Overloads accept one or two directional enums to return all adjacent tiles.
+	IE; screenlocation(4,4,north,east) returns the cursor location above
+	and to the left of the fifth tile down and from the left.
+	*/
+
+	/* Update on 12/13/2021 :: Draw Utility Functions (screenLocation)
+	Wrote these functions to replace this sort of thing:
+	_Draw.X += 5;
+	_Draw.Y = 1;
+	Moving the draw cursor like a claw crane game...
+
+	This function replaces ad hoc movements, enabling a 'point and click'
+	for drawing at and around any tile.
+	*/
+	COORD screenLocation(int x, int y) {
+		COORD screenLoc;
+		screenLoc.X = 2 + (5 * x);
+		screenLoc.Y = 1 + (2 * y);
+		return screenLoc;
+	}
+	COORD screenLocation(int x, int y, direction d) {
+		COORD screenLoc;
+		screenLoc.X = 2 + (5 * x);
+		screenLoc.Y = 1 + (2 * y);
+		switch (d) {
+		case north:
+			screenLoc.Y--;
+			break;
+		case east:
+			screenLoc.X--;
+			break;
+		case south:
+			screenLoc.Y++;
+			break;
+		case west:
+			screenLoc.X++;
+		}
+		return screenLoc;
+	}
+	COORD screenLocation(int x, int y, direction d1, direction d2) {
+		COORD screenLoc;
+		screenLoc.X = 2 + (5 * x);
+		screenLoc.Y = 1 + (2 * y);
+		switch (d1) {
+		case north:
+			screenLoc.Y--;
+			break;
+		case east:
+			screenLoc.X--;
+			break;
+		case west:
+			screenLoc.X++;
+			break;
+		case south:
+			screenLoc.Y++;
+		}
+		switch (d2) {
+		case north:
+			screenLoc.Y--;
+			break;
+		case east:
+			screenLoc.X--;
+			break;
+		case west:
+			screenLoc.X++;
+			break;
+		case south:
+			screenLoc.Y++;
+		}
+		return screenLoc;
+	}
+
 	//Game-Set functions
 	void clear() {
 		for (int x = 0; x < BD_SZ; x++) {
@@ -163,7 +236,6 @@ public:
 		switch (rnd(4)) {
 		case 0:
 			eatN();
-			
 			break;
 		case 1:
 			eatE();
@@ -359,7 +431,7 @@ public:
 			}
 			if (!rowEmpty) break;
 		}
-		for each (COORD c in eatList)
+		for (COORD c : eatList)
 		{
 			ray[c.X][c.Y] = 0;
 		}
@@ -376,6 +448,7 @@ public:
 		for (int x = 0; x < BD_SZ; x++) {
 			for (int y = 0; y < BD_SZ; y++)
 			{
+				_Draw = screenLocation(x, y);
 				setLn();
 				switch (ray[x][y]) {
 				case 0:
@@ -407,40 +480,29 @@ public:
 					cout << "O";
 					break;
 				}
-				//cout << ray[x][y];
-				_Draw.Y += 2;
 			}
-			_Draw.X += 5;
-			_Draw.Y = 1;
 		}
-
-		_Draw.X = 2;
-		_Draw.Y = 1;
 
 		// Debugging, mark eaten tiles, and matched tiles
 		for (int x = 0; x < BD_SZ; x++) {
 			for (int y = 0; y < BD_SZ; y++)
 			{
-				setLn(); SetColor(yellow);
-				if (eatlist_Find(x, y)) {
-					cout << "E";
-				}
-				_Draw.X--; _Draw.Y++;
+				_Draw = screenLocation(x, y);
 				setLn(); SetColor(yellow);
 				if (emptylist_Find(x, y)) {
 					cout << "M";
 				}
-				_Draw.X++;
-				_Draw.Y++;
+				setLn();
+				if (eatlist_Find(x, y)) {
+					cout << "E";
+				}
 			}
-			_Draw.X += 5;
-			_Draw.Y = 1;
 		}
 	
 		if (_grabbing) {
-			_Draw.X = (c_grab.X * 5);
-			_Draw.Y = (c_grab.Y * 2) + 1;
-			SetColor(_ltgreen);
+ 			_Draw = screenLocation(c_grab.X, c_grab.Y,east, east);
+
+			SetColor(ltgreen);
 			setLn(); cout << ">";
 			_Draw.X += 4;
 			setLn(); cout << "<";
@@ -448,16 +510,16 @@ public:
 	} //END DRAW
 	void swap(COORD c) {
 		// account for cursor-board discrepancy
-		//
 		c.X--; c.Y--;
+
 		// store the value of the tile @ grab COORD
-		//
-		short temp; temp = ray[c_grab.X][c_grab.Y];
+		short temp; 
+		temp = ray[c_grab.X][c_grab.Y];
+
 		// set value of tile @ grab COORD to that of tile @ cursor COORD
-		//
 		ray[c_grab.X][c_grab.Y] = ray[c.X][c.Y];
+
 		// set tile @ cursor COORD to stored tile value
-		//
 		ray[c.X][c.Y] = temp;
 
 		// Now check both new loci for matches,
