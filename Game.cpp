@@ -778,7 +778,6 @@ void scoreScreen() {
 	cout << "	Final Score  :	" << _score << endl << endl;
 	cout << endl;
 
-	
 	system("Pause");
 }
 													
