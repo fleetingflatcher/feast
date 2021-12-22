@@ -63,8 +63,8 @@ namespace l_n {
 //Anonymous Namespace of Global Declaration
 namespace {
 	const short BD_SZ = 9;		//Loop bools and constants
-	bool _isRunning, _Gaming;  
-	
+	bool _isRunning, _Gaming;
+
 	HANDLE sdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD _Draw; short c;						//User I/O variables
 
@@ -94,9 +94,8 @@ namespace {
 	}
 
 }
-	//The Guts of the Main Menu
 
-	//A random number function; mod by arg
+//A random number function; mod by arg
 static int rnd(int t) {
-	return (rand()%t);
+	return (rand() % t);
 }

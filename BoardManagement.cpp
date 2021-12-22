@@ -231,6 +231,7 @@ public:
 		score += 5;
 	}
 
+	// Function called to beginneth the feast (12/22/2021)
 	void feast() {
 		_eating = true;
 		switch (rnd(4)) {
@@ -270,7 +271,8 @@ public:
 		W++;
 		compass = north;
 	}
-	// a general eat function, only called if (_eating)
+
+	// A function called every frame that the feast is in-progresseth (12/22/2021)
 	void eat() {
 		
 		// check if we're done eating?
@@ -358,11 +360,17 @@ public:
 			}
 		}
 		// if we haven't filled all of the empty tiles, keep eating
+		/* UPDATE (12/22/2021) Perhaps this was not a good gameplay mechanic.
+		* This mechanic leaves it up to chance whether a player ends up receiving 
+		a score penalty as a result of the feast. If the player makes many matches,
+		and as a result, the feast continues; they are just as likely to have not 
+		satisifed the number of tiles that will be feasted *perfectly*.
 		if (!_eating && !emptyList.empty()) feast();
+		*/
 		else if (!_eating) reset();
 	} //end eat
 
-
+	// A function called when the feast is endeth (12/22/2021)
 	void reset() {
 		string s;
 		_eating = false;
@@ -389,6 +397,9 @@ public:
 		pnlty_tilesDestroyed = bonus_tilesFilled = 0;
 
 	}
+
+	// (12/22/2021) SPECULATION: A function which prevents 
+	// the player from 'cursoring' over eaten tiles.
 	void guard() {
 		bool rowEmpty;
 		//North Guard
@@ -476,7 +487,7 @@ public:
 					cout << "O";
 					break;
 				case 6:
-					SetColor(_purple);
+					SetColor(_white);
 					cout << "O";
 					break;
 				}

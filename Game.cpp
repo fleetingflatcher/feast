@@ -267,10 +267,15 @@ public:
 
 // GAMETIME DECLARATIONS
 
+//Window for scrolling in-game announcements and events
 wdw chatbox(2, 24, 54, 5);
+//Window for scrolling score change notifications
 wdw scorebox(49, 1, 9, 17);
+//Wrapper window for scorebox and feast timer
 wdw hud_rt(46, -1, 13, 32);
+//Wrapper window for chatbox and scoreboard/game timer
 wdw hud_bt(0, 19, 58, 15);
+//Game background?
 wdw active_bg(-1, -1, 47, 20);
 
 timer eat_Timer;
@@ -769,7 +774,7 @@ void scoreScreen() {
 	// starting at a 4x bonus if you finished in 3 seconds,
 	// down to around 1.05x bonus if you had 3 seconds left.
 	cout << "	Time Bonus :	" << 0.0079*(sqrt(Game_Timer.remaining)) << endl << endl;
-	_score += _score * (0.0079*sqrt(Game_Timer.remaining));			  
+	_score = _score * (0.0079*sqrt(Game_Timer.remaining));			  
 	cout << "	Final Score  :	" << _score << endl << endl;
 	cout << endl;
 
