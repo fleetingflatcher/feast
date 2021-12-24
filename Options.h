@@ -1,4 +1,6 @@
 #pragma once
+#pragma comment(lib, "User32.lib")
+
 #include <Windows.h>
 #include <iostream>
 #include <iomanip>
