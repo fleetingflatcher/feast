@@ -1,6 +1,4 @@
 #pragma once
-#pragma comment(lib, "User32.lib")
-
 #include <Windows.h>
 #include <iostream>
 #include <iomanip>
@@ -64,7 +62,7 @@ namespace l_n {
 
 //Anonymous Namespace of Global Declaration
 namespace {
-	const short BD_SZ = 9;		//Loop bools and constants
+	const short BOARD_SIZE = 9;		//Loop bools and constants
 	bool _isRunning, _Gaming;
 
 	HANDLE sdout = GetStdHandle(STD_OUTPUT_HANDLE);

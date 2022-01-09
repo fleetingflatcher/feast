@@ -17,14 +17,14 @@ public:
 	// searches a vector for a COORD, to see if it has already been processed
 	bool matchlist_Find(int x, int y) {
 		COORD c; c.X = x; c.Y = y;
-		for (int i = 0; i < matchList.size(); i++) {
+		for (int i = 0; i < (int)matchList.size(); i++) {
 			if (matchList[i].X == c.X && matchList[i].Y == c.Y)
 				return true;
 		}
 		return false;
 	}
 	void emptylist_Prune() {
-		for (int i = emptyList.size(); i > 0; i--) {
+		for (int i = (int)emptyList.size(); i > 0; i--) {
 			if (eatlist_Find(emptyList[i].X, emptyList[i].Y)) {
 				emptyList.erase(emptyList.begin() + i);
 			}
@@ -32,7 +32,7 @@ public:
 	}
 	bool emptylist_Find(int x, int y) {
 		COORD c; c.X = x; c.Y = y;
-		for (int i = 0; i < emptyList.size(); i++) {
+		for (int i = 0; i < (int)emptyList.size(); i++) {
 			if (emptyList[i].X == c.X && emptyList[i].Y == c.Y)
 				return true;
 		}
@@ -40,7 +40,7 @@ public:
 	}
 	bool eatlist_Find(int x, int y) {
 		COORD c; c.X = x; c.Y = y;
-		for (int i = 0; i < eatList.size(); i++) {
+		for (int i = 0; i < (int)eatList.size(); i++) {
 			if (eatList[i].X == c.X && eatList[i].Y == c.Y)
 				return true;
 		}
@@ -57,11 +57,10 @@ public:
 
 
 public:
-	short ray[BD_SZ][BD_SZ];
+	short GameBoard[BOARD_SIZE][BOARD_SIZE];
 	COORD c_grab; bool _grabbing, _eating;
 	//Constructor
 	Board() {
-		short ray[BD_SZ][BD_SZ];
 		N = E = S = W = tilesEmpty = 0;
 		clear(); _grabbing = false;
 	}
@@ -141,17 +140,17 @@ public:
 
 	//Game-Set functions
 	void clear() {
-		for (int x = 0; x < BD_SZ; x++) {
-			for (int y = 0; y < BD_SZ; y++)
+		for (int x = 0; x < BOARD_SIZE; x++) {
+			for (int y = 0; y < BOARD_SIZE; y++)
 			{
-				ray[x][y] = 0;
+				GameBoard[x][y] = 0;
 			}
 		}
 	}
 	void set() {
-		for (int x = 0; x < BD_SZ; x++)
-			for (int y = 0; y < BD_SZ; y++) {
-				ray[x][y] = rnd(6) + 1;
+		for (int x = 0; x < BOARD_SIZE; x++)
+			for (int y = 0; y < BOARD_SIZE; y++) {
+				GameBoard[x][y] = rnd(6) + 1;
 			}
 	}
 	// Game-play functions
@@ -159,7 +158,7 @@ public:
 		bool isMatch = false;
 		short mem;
 		// Store value to check
-		mem = ray[c.X][c.Y];
+		mem = GameBoard[c.X][c.Y];
 
 		if (mem != 0) {							 //Some unhandled exception involving checking zeros?
 
@@ -167,18 +166,18 @@ public:
 			matchList.push_back(c);
 
 			// Search neighbors... vFind keeps us from going in circles
-			if (ray[c.X - 1][c.Y] == mem) {
+			if (GameBoard[c.X - 1][c.Y] == mem) {
 				subCheck(c.X - 1, c.Y, mem);
 			}
-			if (ray[c.X + 1][c.Y] == mem) {
+			if (GameBoard[c.X + 1][c.Y] == mem) {
 				if (!matchlist_Find(c.X + 1, c.Y))
 					subCheck(c.X + 1, c.Y, mem);
 			}
-			if (ray[c.X][c.Y - 1] == mem) {
+			if (GameBoard[c.X][c.Y - 1] == mem) {
 				if (!matchlist_Find(c.X, c.Y - 1))
 					subCheck(c.X, c.Y - 1, mem);
 			}
-			if (ray[c.X][c.Y + 1] == mem) {
+			if (GameBoard[c.X][c.Y + 1] == mem) {
 				if (!matchlist_Find(c.X, c.Y + 1))
 					subCheck(c.X, c.Y + 1, mem);
 			}
@@ -186,7 +185,7 @@ public:
 			// Check if a bona fide match has been achieved
 			if (matchList.size() > 2) isMatch = true;
 			if (isMatch) {
-				score += pow((matchList.size() - 1), 2) * 5;
+				score += (int)pow((matchList.size() - 1), 2) * 5;
 				string s = "matched ";
 				s += to_string(matchList.size());
 				s += " tiles for ";
@@ -206,26 +205,26 @@ public:
 		COORD c; c.X = x; c.Y = y;
 		matchList.push_back(c);
 
-		if (ray[x - 1][y] == s) {
+		if (GameBoard[x - 1][y] == s) {
 			if (!matchlist_Find(c.X - 1, c.Y))
 				subCheck(x - 1, y, s);
 		}
-		if (ray[x + 1][y] == s) {
+		if (GameBoard[x + 1][y] == s) {
 			if (!matchlist_Find(c.X + 1, c.Y))
 				subCheck(x + 1, y, s);
 		}
-		if (ray[x][y - 1] == s) {
+		if (GameBoard[x][y - 1] == s) {
 			if (!matchlist_Find(c.X, c.Y - 1))
 				subCheck(x, y - 1, s);
 		}
-		if (ray[x][y + 1] == s) {
+		if (GameBoard[x][y + 1] == s) {
 			if (!matchlist_Find(c.X, c.Y + 1))
 				subCheck(x, y + 1, s);
 		}
 
 	}
 	void clearTile(COORD c) {
-		ray[c.X][c.Y] = 0;
+		GameBoard[c.X][c.Y] = 0;
 		tilesEmpty++;	  	//count the empty tiles
 		emptyList.push_back(c);	 //mark the tile empty for eating
 		score += 5;
@@ -296,7 +295,7 @@ public:
 		}
 
 		// if the tile is empty, move along. Still add to eatList. 
-		while (ray[eat_at.X][eat_at.Y] == 0 && _eating) {
+		while (GameBoard[eat_at.X][eat_at.Y] == 0 && _eating) {
 			if (eat_at.X < 0 || eat_at.X > 8 || eat_at.Y < 0 || eat_at.Y > 8) _eating = false;
 			else if (!eatlist_Find(eat_at.X, eat_at.Y)) eatList.push_back(eat_at);
 			switch (compass) {
@@ -320,7 +319,7 @@ public:
 
 		// If there are no matches made, start killing tiles
 		if (emptyList.empty() && _eating) {
-			ray[eat_at.X][eat_at.Y] = 0;
+			GameBoard[eat_at.X][eat_at.Y] = 0;
 			pnlty_tilesDestroyed++;
 			switch (compass) {
 			case north:
@@ -339,9 +338,9 @@ public:
 		else if (_eating){
 			COORD c;
 			if (!emptyList.empty()) c = emptyList.back();
-			int temp = ray[eat_at.X][eat_at.Y];
-			ray[eat_at.X][eat_at.Y] = 0;
-			ray[c.X][c.Y] = temp;
+			int temp = GameBoard[eat_at.X][eat_at.Y];
+			GameBoard[eat_at.X][eat_at.Y] = 0;
+			GameBoard[c.X][c.Y] = temp;
 			emptyList.pop_back();
 			tilesEmpty--;
 			bonus_tilesFilled++;
@@ -377,7 +376,7 @@ public:
 		if (pnlty_tilesDestroyed && bonus_tilesFilled) {
 			s = "'Tile Fill' bonus: ";
 			s += to_string(int(pow(bonus_tilesFilled, 2)) * 5);
-			score += (pow(bonus_tilesFilled, 2) * 5);
+			score += (int)(pow(bonus_tilesFilled, 2) * 5);
 			s += "  ; 'Lost Tile' penalty: ";
 			s += to_string(int(pow(float(pnlty_tilesDestroyed) / 2, 2)) * 5);
 			score -= int(pow(float(pnlty_tilesDestroyed) / 2, 2)) * 5;
@@ -386,7 +385,7 @@ public:
 		else if (bonus_tilesFilled) {
 			s = "'Tile Fill' bonus: ";
 			s += to_string(int(pow(bonus_tilesFilled, 2)) * 5);
-			score += (pow(bonus_tilesFilled, 2) * 5);
+			score += (int)(pow(bonus_tilesFilled, 2) * 5);
 		}
 		else {
 			s = "'Lost Tile' penalty: ";
@@ -444,7 +443,7 @@ public:
 		}
 		for (COORD c : eatList)
 		{
-			ray[c.X][c.Y] = 0;
+			GameBoard[c.X][c.Y] = 0;
 		}
 	}
 
@@ -456,12 +455,12 @@ public:
 		_Draw.Y = 1;
 
 		// Draw the game board
-		for (int x = 0; x < BD_SZ; x++) {
-			for (int y = 0; y < BD_SZ; y++)
+		for (int x = 0; x < BOARD_SIZE; x++) {
+			for (int y = 0; y < BOARD_SIZE; y++)
 			{
 				_Draw = screenLocation(x, y);
 				setLn();
-				switch (ray[x][y]) {
+				switch (GameBoard[x][y]) {
 				case 0:
 					SetColor(_black);
 					cout << "O";
@@ -495,8 +494,8 @@ public:
 		}
 
 		// Debugging, mark eaten tiles, and matched tiles
-		for (int x = 0; x < BD_SZ; x++) {
-			for (int y = 0; y < BD_SZ; y++)
+		for (int x = 0; x < BOARD_SIZE; x++) {
+			for (int y = 0; y < BOARD_SIZE; y++)
 			{
 				_Draw = screenLocation(x, y);
 				setLn(); SetColor(yellow);
@@ -525,13 +524,13 @@ public:
 
 		// store the value of the tile @ grab COORD
 		short temp; 
-		temp = ray[c_grab.X][c_grab.Y];
+		temp = GameBoard[c_grab.X][c_grab.Y];
 
 		// set value of tile @ grab COORD to that of tile @ cursor COORD
-		ray[c_grab.X][c_grab.Y] = ray[c.X][c.Y];
+		GameBoard[c_grab.X][c_grab.Y] = GameBoard[c.X][c.Y];
 
 		// set tile @ cursor COORD to stored tile value
-		ray[c.X][c.Y] = temp;
+		GameBoard[c.X][c.Y] = temp;
 
 		// Now check both new loci for matches,
 		Czech(c_grab);

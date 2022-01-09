@@ -2,6 +2,12 @@
 #include "BoardManagement.cpp"
 
 namespace l_n {
+	namespace LOCATIONS {
+		const COORD TIMER = {5, 21};
+		const COORD BOARDSCORE = {21, 21};
+		const COORD GAMESCORE = {37, 21};
+	}
+	
 	void setLn() {
 		SetConsoleCursorPosition(sdout, _Draw);
 	}
@@ -200,7 +206,12 @@ public:
 	//end of class
 };
 
+namespace DEFAULT_TIMES {
+	const double FEAST = 11.5;
+	const double GAME = 180.0;
+}
 class timer {
+	
 public:
 	double sample, start, end, remaining;
 	bool isTicking;
@@ -275,8 +286,8 @@ wdw scorebox(49, 1, 9, 17);
 wdw hud_rt(46, -1, 13, 32);
 //Wrapper window for chatbox and scoreboard/game timer
 wdw hud_bt(0, 19, 58, 15);
-//Game background?
-wdw active_bg(-1, -1, 47, 20);
+//Gameboard background?
+wdw ActiveGameBoard_bg(-1, -1, 47, 20);
 
 timer eat_Timer;
 timer Game_Timer;
@@ -299,7 +310,7 @@ void chatPrint() {
 		if (anim > printAnim) {
 			_Draw.X = chatbox.loc.X;
 			_Draw.Y = chatbox.loc.Y;
-			_Draw.X += chats[0].length();
+			_Draw.X += (short)chats[0].length();
 			SetColor(ltgreen);
 			setLn(); cout << chatPrinting[0];
 			chats[0] += chatPrinting[0];
@@ -366,7 +377,7 @@ void scorePrint() {
 		if (anim > printAnim) {
 			_Draw.X = scorebox.loc.X;
 			_Draw.Y = scorebox.loc.Y;
-			_Draw.X += scores[0].length();
+			_Draw.X += (short)scores[0].length();
 			SetColor(ltred);
 			setLn(); cout << scorePrinting[0];
 			scores[0] += scorePrinting[0];
@@ -469,13 +480,19 @@ void scorePrint(string s) {
 }
 void scoreScreen();
 
+/*12/26/2021
+* THE gameSet() FUNCTION DOES WAY TOO MUCH.
+  Divide this up into more functions, possibly divy 
+  responsibility out to multiple classes/cpp files.
+  Details in to-do.
+*/
 void gameSet() {
-	Board active;
+	Board ActiveGameBoard;
 
 	if (Game_Timer.isTicking);
-	else Game_Timer.set(180);
+	else Game_Timer.set(DEFAULT_TIMES::GAME);
 	cout << endl << "Game board initialized" << endl; Sleep(37);
-	active.set();
+	ActiveGameBoard.set();
 	cout << "Game board cleared" << endl; Sleep(37);
 	cout << "Game board generated" << endl; Sleep(37);
 	chatPrinting = chats[0] = chats[1] = chats[2] = chats[3] = chats[4] = chats[5] = "";
@@ -495,7 +512,11 @@ void gameSet() {
 	*/
 	bool dBoard, dScore;
 	//Whether or not the user has grabbed a tile
+	//12/26/2021 ==TODO==
+	// tileGrabbed seems like a redeclaration of the _grabbed property of BoardManagement.cpp
 	bool tileGrabbed;
+
+
 	cout << "Booleans declared" << endl; Sleep(37);
 	score = 0;
 	cout << "Integers initialized" << endl; Sleep(37);
@@ -504,7 +525,7 @@ void gameSet() {
 	system("CLS");			 //Clear Screen
 
 	_Gaming = _Curs.X = _Curs.Y = 1; //Set _Gaming bool for gametime loop, set _Curs to initial position
-				/* NOTE: _Curs (1,1) refers to active.ray[0][0] */
+				/* NOTE: _Curs (1,1) refers to ActiveGameBoard.ray[0][0] */
 
 	//set _Draw based on curs and ray location for Cursor
 	tileGrabbed = dBoard = dScore = false;  //initializing
@@ -516,16 +537,16 @@ void gameSet() {
 	hud_bt.draw(); hud_bt.fill(" "); 
 	chatbox.c_outline = _black; chatbox.c_fill = _black;
 	chatbox.draw(); chatbox.fill(" ");
-	active_bg.c_fill = _black;
+	ActiveGameBoard_bg.c_fill = _black;
 
 
 
-	eat_Timer.set(15);
+	eat_Timer.set(DEFAULT_TIMES::FEAST);
 
 	//FIRST DRAW
-	active_bg.fill(" ");
+	ActiveGameBoard_bg.fill(" ");
 	SetColor(ltblue);
-	active.draw();	  // Draw Board
+	ActiveGameBoard.draw();	  // Draw Board
 
 	chatPrint(string("ready player one"));
 
@@ -556,11 +577,11 @@ void gameSet() {
 	do {
 		//BOARD START
 		if (dBoard) {
-			active_bg.fill(" ");
+			ActiveGameBoard_bg.fill(" ");
 			dBoard = false;
 		}
 		SetColor(ltblue);
-		active.draw();
+		ActiveGameBoard.draw();
 		//BOARD END
 
 
@@ -629,50 +650,50 @@ void gameSet() {
 
 		//CONTROL START
 		if (!tileGrabbed) {
-			if (GetAsyncKeyState(VK_UP) && _Curs.Y > 1 + active.N) {
+			if (GetAsyncKeyState(VK_UP) && _Curs.Y > 1 + ActiveGameBoard.N) {
 				dBoard = true;
 				_Curs.Y--;
 			}
-			if (GetAsyncKeyState(VK_DOWN) && _Curs.Y < 9 + active.S) {
+			if (GetAsyncKeyState(VK_DOWN) && _Curs.Y < 9 + ActiveGameBoard.S) {
 				dBoard = true;
 				_Curs.Y++;
 			}
-			if (GetAsyncKeyState(VK_LEFT) && _Curs.X > 1 + active.W) {
+			if (GetAsyncKeyState(VK_LEFT) && _Curs.X > 1 + ActiveGameBoard.W) {
 				dBoard = true;
 				_Curs.X--;
 			}
-			if (GetAsyncKeyState(VK_RIGHT) && _Curs.X < 9 + active.E) {
+			if (GetAsyncKeyState(VK_RIGHT) && _Curs.X < 9 + ActiveGameBoard.E) {
 				dBoard = true;
 				_Curs.X++;
 			}
 
 			if (GetAsyncKeyState(VK_RETURN)) {
-				active.grab(_Curs);
+				ActiveGameBoard.grab(_Curs);
 				tileGrabbed = dBoard = true;
 				Sleep(155);
 				//chatPrint("tile grabbed");
 			}
 		}
 		else if (tileGrabbed) {
-			if (GetAsyncKeyState(VK_UP) && _Curs.Y > 1 && _Curs.Y > (active.c_grab.Y)) {
+			if (GetAsyncKeyState(VK_UP) && _Curs.Y > 1 && _Curs.Y > (ActiveGameBoard.c_grab.Y)) {
 				dBoard = true;
 				_Curs.Y--;
 			}
-			if (GetAsyncKeyState(VK_DOWN) && _Curs.Y < 9 && _Curs.Y < (active.c_grab.Y + 2)) {
+			if (GetAsyncKeyState(VK_DOWN) && _Curs.Y < 9 && _Curs.Y < (ActiveGameBoard.c_grab.Y + 2)) {
 				dBoard = true;
 				_Curs.Y++;
 			}
-			if (GetAsyncKeyState(VK_LEFT) && _Curs.X > 1 && _Curs.X > (active.c_grab.X)) {
+			if (GetAsyncKeyState(VK_LEFT) && _Curs.X > 1 && _Curs.X > (ActiveGameBoard.c_grab.X)) {
 				dBoard = true;
 				_Curs.X--;
 			}
-			if (GetAsyncKeyState(VK_RIGHT) && _Curs.X < 9 && _Curs.X < (active.c_grab.X + 2)) {
+			if (GetAsyncKeyState(VK_RIGHT) && _Curs.X < 9 && _Curs.X < (ActiveGameBoard.c_grab.X + 2)) {
 				dBoard = true;
 				_Curs.X++;
 			}
 
 			if (GetAsyncKeyState(VK_RETURN)) {
-				active.swap(_Curs);
+				ActiveGameBoard.swap(_Curs);
 				dBoard = true;
 				tileGrabbed = false;
 				//chatPrint("tiles swapped");
@@ -717,9 +738,9 @@ void gameSet() {
 			eat_Timer.stop();
 		}
 		else {
-			eat_Timer.set(15);
+			eat_Timer.set(DEFAULT_TIMES::FEAST);
 			chatPrint("! The Feast is begun!");
-			active.feast();
+			ActiveGameBoard.feast();
 
 		}
 		eat_Timer.Draw();
@@ -730,7 +751,7 @@ void gameSet() {
 
 		//timers end
 
-		if (active._eating) active.eat();
+		if (ActiveGameBoard._eating) ActiveGameBoard.eat();
 		if (Game_Timer.stop() == 1) {
 			num = -2;
 			scoreScreen();
@@ -740,8 +761,8 @@ void gameSet() {
 
 		if (/*win conditions here*/0) _Gaming = false;
 		_Draw.X = 59; _Draw.Y = 30; setLn(); cout << ""; //Move the cursor before sleep
-		Sleep(61); anim++;
-		active.guard();
+		Sleep(65); anim++;
+		ActiveGameBoard.guard();
 		if (anim > 10) anim = -15;
 	} while (_Gaming); //GAME END
 	_score += score;
@@ -774,7 +795,7 @@ void scoreScreen() {
 	// starting at a 4x bonus if you finished in 3 seconds,
 	// down to around 1.05x bonus if you had 3 seconds left.
 	cout << "	Time Bonus :	" << 0.0079*(sqrt(Game_Timer.remaining)) << endl << endl;
-	_score = _score * (0.0079*sqrt(Game_Timer.remaining));			  
+	_score = (int)(_score * (0.0079*sqrt(Game_Timer.remaining)));			  
 	cout << "	Final Score  :	" << _score << endl << endl;
 	cout << endl;
 
@@ -996,7 +1017,7 @@ int MainMenu() {
 int main() 
 {
 	system("mode 60, 31");
-	srand(time(0));
+	srand((UINT)time(0));
 	_isRunning = true;
 
 do {
