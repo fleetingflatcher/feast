@@ -1,5 +1,6 @@
 #include "Options.h"
 #include "BoardManagement.cpp"
+#include "wdw.h"
 
 namespace l_n {
 	namespace LOCATIONS {
@@ -50,161 +51,6 @@ using namespace std;
 using namespace l_n;
 
 
-class wdw
-	// Class of objects I call Windows
-{
-public:
-	COORD loc; // A location passed through x,y referring to the top right corner
-	PAINT t_outline, t_fill; // Occasionally used text color enums
-	PAINT c_outline, c_fill; // Primary color enums
-	short wdt, hgt; // Width and height
-
-	// First, constructors...
-	wdw(PAINT c, PAINT f, short x, short y, short a, short b) {
-		loc.X = x; loc.Y = y;
-		wdt = a; hgt = b;
-		c_outline = c; c_fill = f;
-	}
-	wdw(PAINT c, short x, short y, short a, short b) {
-		loc.X = x; loc.Y = y;
-		wdt = a; hgt = b;
-		c_outline = c; c_fill = c;
-	}
-	wdw(short x, short y, short a, short b) {
-		loc.X = x; loc.Y = y;
-		wdt = a; hgt = b;
-		c_outline = PAINT::_dkgray; c_fill = PAINT::_ltgray;
-	}
-	// In case we'd like to display our window,
-	void draw() {
-		_Draw.X = loc.X; _Draw.Y = loc.Y;
-		setLn();
-		SetColor(c_outline);
-		for (int i = wdt; i > 0; i--) {
-			if (_Draw.X < 0) {
-				_Draw.X++;
-				setLn();
-				continue;
-			}
-			else if (_Draw.Y < 0) {
-				_Draw.X += i;
-				break;
-			}
-			cout << " ";
-			_Draw.X++; setLn();
-		}
-		for (int i = hgt; i > 0; i--) {
-			if (_Draw.X > 60) {
-				_Draw.Y += hgt;
-				setLn();
-				break;
-			}
-			else if (_Draw.Y < 0) {
-				_Draw.Y++;
-				setLn();
-				continue;
-			}
-			else if (_Draw.Y > 30) {
-				_Draw.Y += i;
-				break;
-			}
-			cout << " ";
-			_Draw.Y++; setLn();
-		}
-		for (int i = wdt; i > 0; i--) {
-			if (_Draw.Y > 30) {
-				_Draw.X -= wdt;
-				break;
-			}
-			if (_Draw.X > 60) {
-				_Draw.X--; 
-				setLn();
-				continue;
-			}
-			cout << " ";
-			_Draw.X--; setLn();
-		}
-		for (int i = hgt; i > 0; i--) {
-			if (_Draw.Y < 0 || _Draw.X < 0) {
-				_Draw.Y -= hgt;
-				setLn();
-				break;
-			}
-			else if (_Draw.Y > 30)	{
-				_Draw.Y--;
-				setLn();
-				continue;
-			}
-			else if (_Draw.X > 59) break;
-
-			cout << " ";
-			_Draw.Y--; setLn();
-		}
-		//end of draw()
-	}
-	// Fill, either with background color or text
-	void fill(string s) {
-		_Draw.X = loc.X+1; _Draw.Y = loc.Y+1;
-		SetColor(c_fill);
-
-		for (int y = hgt - 1; y > 0; y--) {
-			if (_Draw.Y < 0) {
-				_Draw.Y++;
-				continue;
-			}			
-			else if (_Draw.Y > 30) break;
-			for (int x = wdt - 1; x > 0; x--) {
-				if (_Draw.X < 0) {
-					_Draw.X++;
-					continue;
-				}
-				else if (_Draw.X > 59) break;
-				setLn();
-				cout << s;
-				_Draw.X++;
-			}
-			_Draw.Y++;
-			_Draw.X = loc.X + 1;
-		}		
-		setLn(); 
-	}
-	// Alternate fill that makes an elementary pattern
-	void fill(string s, string a) {
-		_Draw.X = loc.X + 1; _Draw.Y = loc.Y + 1;
-		SetColor(c_fill); bool alt = true;
-		for (int y = hgt - 1; y > 0; y--) {
-			alt = !alt;
-			if (_Draw.Y < 0) {
-				_Draw.Y++;
-				continue;
-			}
-			else if (_Draw.Y > 30) break;
-			for (int x = wdt - 1; x > 0; x--) {
-				setLn();
-				if (_Draw.X < 0) {
-					_Draw.X++;
-					continue;
-				}
-				else if (_Draw.X > 59) break;
-
-				if (!alt) {
-					if (x % 2) cout << s;
-					else cout << a;
-				}
-				else {
-					if ((x + 1) % 2) cout << s;
-					else cout << a;
-				}
-
-				_Draw.X++;
-			}
-			_Draw.Y++;
-			_Draw.X = loc.X + 1;
-		}
-		setLn();
-	}
-	//end of class
-};
 
 namespace DEFAULT_TIMES {
 	const double FEAST = 11.5;
@@ -529,18 +375,23 @@ void gameSet() {
 
 	//set _Draw based on curs and ray location for Cursor
 	tileGrabbed = dBoard = dScore = false;  //initializing
-	hud_rt.c_outline = _ltgray; hud_rt.c_fill = ltgray;
-	hud_rt.draw(); hud_rt.fill(" ");
-	scorebox.c_outline = _red; scorebox.draw();
+	hud_rt.c_outline = _ltgray; 
+	hud_rt.c_fill = ltgray;
+	hud_rt.draw(); 
+	hud_rt.fill(" ");
+
+	scorebox.c_outline = _red; 
+	scorebox.draw();
 
 	hud_bt.c_outline = _dkgray;
-	hud_bt.draw(); hud_bt.fill(" "); 
-	chatbox.c_outline = _black; chatbox.c_fill = _black;
-	chatbox.draw(); chatbox.fill(" ");
+	hud_bt.draw(); hud_bt.fill("_");
+
+	chatbox.c_outline = _black; 
+	chatbox.c_fill = _black;
+	chatbox.draw(); 
+	chatbox.fill(" ");
+
 	ActiveGameBoard_bg.c_fill = _black;
-
-
-
 	eat_Timer.set(DEFAULT_TIMES::FEAST);
 
 	//FIRST DRAW
@@ -760,7 +611,10 @@ void gameSet() {
 		//FUNCTION END
 
 		if (/*win conditions here*/0) _Gaming = false;
-		_Draw.X = 59; _Draw.Y = 30; setLn(); cout << ""; //Move the cursor before sleep
+		_Draw.X = 59; 
+		_Draw.Y = 30; 
+		setLn();
+		cout << ""; //Move the cursor before sleep
 		Sleep(65); anim++;
 		ActiveGameBoard.guard();
 		if (anim > 10) anim = -15;

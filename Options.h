@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+
 // A fun enum containing text and background colors, as well as _color for solid paint
 enum PAINT
 {
