@@ -1,8 +1,9 @@
 #include "Options.h"
+#include "DisplayManager.h"
 
 
 using namespace std;
-using namespace l_n;
+using namespace Display;
 
 void chatPrint(string);
 
@@ -449,44 +450,43 @@ public:
 
 
 	// I/O functions
-	void draw() {
+	void draw(Display::DisplayManager& dsp) {
 		//starting position
-		_Draw.X = 2;
-		_Draw.Y = 1;
+		COORD loc{ 2, 1 };
 
 		// Draw the game board
 		for (int x = 0; x < BOARD_SIZE; x++) {
 			for (int y = 0; y < BOARD_SIZE; y++)
 			{
-				_Draw = screenLocation(x, y);
-				setLn();
+				loc = screenLocation(x, y);
+				dsp.setLn(loc);
 				switch (GameBoard[x][y]) {
 				case 0:
-					SetColor(_black);
+					dsp.SetColor(_black);
 					cout << "O";
 					break;
 				case 1:
-					SetColor(_ltred);
+					dsp.SetColor(_ltred);
 					cout << "O";
 					break;
 				case 2:
-					SetColor(_ltblue);
+					dsp.SetColor(_ltblue);
 					cout << "O";
 					break;
 				case 3:
-					SetColor(_green);
+					dsp.SetColor(_green);
 					cout << "O";
 					break;
 				case 4:
-					SetColor(_yellow);
+					dsp.SetColor(_yellow);
 					cout << "O";
 					break;
 				case 5:
-					SetColor(_pink);
+					dsp.SetColor(_pink);
 					cout << "O";
 					break;
 				case 6:
-					SetColor(_white);
+					dsp.SetColor(_white);
 					cout << "O";
 					break;
 				}
@@ -497,12 +497,13 @@ public:
 		for (int x = 0; x < BOARD_SIZE; x++) {
 			for (int y = 0; y < BOARD_SIZE; y++)
 			{
-				_Draw = screenLocation(x, y);
-				setLn(); SetColor(yellow);
+				loc = screenLocation(x, y);
+				dsp.setLn(loc); 
+				dsp.SetColor(yellow);
 				if (emptylist_Find(x, y)) {
 					cout << "M";
 				}
-				setLn();
+				dsp.setLn(loc);
 				if (eatlist_Find(x, y)) {
 					cout << "E";
 				}
@@ -510,12 +511,12 @@ public:
 		}
 	
 		if (_grabbing) {
- 			_Draw = screenLocation(c_grab.X, c_grab.Y,east, east);
+ 			loc = screenLocation(c_grab.X, c_grab.Y,east, east);
 
-			SetColor(ltgreen);
-			setLn(); cout << ">";
-			_Draw.X += 4;
-			setLn(); cout << "<";
+			dsp.SetColor(ltgreen);
+			dsp.setLn(loc); cout << ">";
+			loc.X += 4;
+			dsp.setLn(loc); cout << "<";
 		}
 	} //END DRAW
 	void swap(COORD c) {

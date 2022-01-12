@@ -1,4 +1,6 @@
 #include "wdw.h"
+#include "DisplayManager.h"
+
 
 wdw::wdw(PAINT c, PAINT f, short x, short y, short a, short b) {
 	loc.X = x; loc.Y = y;
@@ -17,14 +19,14 @@ wdw::wdw(short x, short y, short a, short b) {
 }
 
 // In case we'd like to display our window,
-void wdw::draw() {
+void wdw::draw(Display::DisplayManager& dsp) {
 	_Draw.X = loc.X; _Draw.Y = loc.Y;
-	l_n::setLn();
+	dsp.setLn();
 	SetColor(c_outline);
 	for (int i = wdt; i > 0; i--) {
 		if (_Draw.X < 0) {
 			_Draw.X++;
-			l_n::setLn();
+			dsp.setLn();
 			continue;
 		}
 		else if (_Draw.Y < 0) {
@@ -33,17 +35,17 @@ void wdw::draw() {
 		}
 		std::cout << " ";
 		_Draw.X++;
-		l_n::setLn();
+		dsp.setLn();
 	}
 	for (int i = hgt; i > 0; i--) {
 		if (_Draw.X > 60) {
 			_Draw.Y += hgt;
-			l_n::setLn();
+			dsp.setLn();
 			break;
 		}
 		else if (_Draw.Y < 0) {
 			_Draw.Y++;
-			l_n::setLn();
+			dsp.setLn();
 			continue;
 		}
 		else if (_Draw.Y > 30) {
@@ -52,7 +54,7 @@ void wdw::draw() {
 		}
 		std::cout << " ";
 		_Draw.Y++;
-		l_n::setLn();
+		Display::setLn();
 	}
 	for (int i = wdt; i > 0; i--) {
 		if (_Draw.Y > 30) {
@@ -61,34 +63,34 @@ void wdw::draw() {
 		}
 		if (_Draw.X > 60) {
 			_Draw.X--;
-			l_n::setLn();
+			Display::setLn();
 			continue;
 		}
 		std::cout << " ";
 		_Draw.X--;
-		l_n::setLn();
+		Display::setLn();
 	}
 	for (int i = hgt; i > 0; i--) {
 		if (_Draw.Y < 0 || _Draw.X < 0) {
 			_Draw.Y -= hgt;
-			l_n::setLn();
+			Display::setLn();
 			break;
 		}
 		else if (_Draw.Y > 30) {
 			_Draw.Y--;
-			l_n::setLn();
+			Display::setLn();
 			continue;
 		}
 		else if (_Draw.X > 59) break;
 
 		std::cout << " ";
 		_Draw.Y--;
-		l_n::setLn();
+		Display::setLn();
 	}
 	//end of draw()
 }
 // Fill, either with background color or text
-void wdw::fill(std::string s) {
+void wdw::fill(Display::DisplayManager& dsp, std::string s) {
 	_Draw.X = loc.X + 1; _Draw.Y = loc.Y + 1;
 	SetColor(PAINT::bgltgreen);
 
@@ -104,17 +106,17 @@ void wdw::fill(std::string s) {
 				continue;
 			}
 			else if (_Draw.X > 59) break;
-			l_n::setLn();
+			Display::setLn();
 			std::cout << 'a';
 			_Draw.X++;
 		}
 		_Draw.Y++;
 		_Draw.X = loc.X + 1;
 	}
-	l_n::setLn();
+	Display::setLn();
 }
 // Alternate fill that makes an elementary pattern
-void wdw::fill(std::string s, std::string a) {
+void wdw::fill(Display::DisplayManager& dsp, std::string s, std::string a) {
 	_Draw.X = loc.X + 1; _Draw.Y = loc.Y + 1;
 	SetColor(c_fill); bool alt = true;
 	for (int y = hgt - 1; y > 0; y--) {
@@ -125,7 +127,7 @@ void wdw::fill(std::string s, std::string a) {
 		}
 		else if (_Draw.Y > 30) break;
 		for (int x = wdt - 1; x > 0; x--) {
-			l_n::setLn();
+			Display::setLn();
 			if (_Draw.X < 0) {
 				_Draw.X++;
 				continue;
@@ -146,5 +148,5 @@ void wdw::fill(std::string s, std::string a) {
 		_Draw.Y++;
 		_Draw.X = loc.X + 1;
 	}
-	l_n::setLn();
+	Display::setLn();
 }

@@ -8,8 +8,7 @@
 
 // A fun enum containing text and background colors, as well as _color for solid paint
 enum PAINT
-{
-	black = 0,
+{	black = 0,
 	blue = 1,
 	green = 2,
 	teal = 3,
@@ -52,22 +51,13 @@ enum PAINT
 	_yellow = yellow + bgyellow,
 	_white = white + bgwhite
 };
-//A namespace for a few console text tools
-namespace l_n {
-	void setLn();
-	void clrLn(int);
-	void clrLn(int, int);
-	void clrLn(PAINT, int);
-	void clrLn(PAINT, int, int);
-}
 
 //Anonymous Namespace of Global Declaration
 namespace {
 	const short BOARD_SIZE = 9;		//Loop bools and constants
 	bool _isRunning, _Gaming;
 
-	HANDLE sdout = GetStdHandle(STD_OUTPUT_HANDLE);
-	COORD _Draw; short c;						//User I/O variables
+	//short c;						//User I/O variables
 
 	//Score and UNDERscore
 	//Board score and total score respectively
@@ -76,24 +66,6 @@ namespace {
 	int highest, time_bonus;
 	//Number of boards user has been given. Default max is 3
 	short num;
-
-	//	Next, a few painting tools...
-
-	short RtnColor(PAINT c) {
-		return c;
-	}
-	short RtnColor(PAINT b, PAINT c) {
-		short a = b + c;
-		return a;
-	}
-	void SetColor(PAINT c) {
-		SetConsoleTextAttribute(sdout, c);
-	}
-	void SetColor(PAINT b, PAINT c) {
-		short a = b + c;
-		SetConsoleTextAttribute(sdout, a);
-	}
-
 }
 
 //A random number function; mod by arg

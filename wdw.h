@@ -14,8 +14,8 @@ public:
 	wdw(PAINT color, short x, short y, short width, short height);
 	wdw(short x, short y, short width, short height);
 	
-	void draw();
-	void fill(std::string);
-	void fill(std::string, std::string);
+	void draw(Display::DisplayManager& dsp);
+	void fill(Display::DisplayManager& dsp, std::string);
+	void fill(Display::DisplayManager& dsp, std::string, std::string);
 	//end of class
 };

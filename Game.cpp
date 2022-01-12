@@ -1,54 +1,13 @@
 #include "Options.h"
+#include "DisplayManager.h"
 #include "BoardManagement.cpp"
+#include "Timer.hpp"
 #include "wdw.h"
 
-namespace l_n {
-	namespace LOCATIONS {
-		const COORD TIMER = {5, 21};
-		const COORD BOARDSCORE = {21, 21};
-		const COORD GAMESCORE = {37, 21};
-	}
-	
-	void setLn() {
-		SetConsoleCursorPosition(sdout, _Draw);
-	}
-	void clrLn(int a) {
-		SetConsoleCursorPosition(sdout, _Draw);
-		for (; a > 0; a--) cout << " ";
-		SetConsoleCursorPosition(sdout, _Draw);
-	}
-	void clrLn(int a, int b) {
-		SetConsoleCursorPosition(sdout, _Draw);
-		for (int y = b; y > 0; y--) { 
-			for (int x = a; x > 0; x--) 
-				cout << " ";
-			
-			cout << endl;
-		}
-		SetConsoleCursorPosition(sdout, _Draw);
-	}
-	void clrLn(PAINT c, int a) {
-		SetConsoleCursorPosition(sdout, _Draw);
-		CONSOLE_SCREEN_BUFFER_INFO info; short temp;
-		GetConsoleScreenBufferInfo(sdout, &info); temp = info.wAttributes;
-		SetConsoleTextAttribute(sdout, c);
-		for (; a > 0; a--) cout << " ";
-		SetConsoleCursorPosition(sdout, _Draw);
-		SetConsoleTextAttribute(sdout, temp);
-	}
-	void clrLn(PAINT c, int a, int b) {
-		SetConsoleCursorPosition(sdout, _Draw);
-		CONSOLE_SCREEN_BUFFER_INFO info; short temp;
-		GetConsoleScreenBufferInfo(sdout, &info); temp = info.wAttributes;
-		SetConsoleTextAttribute(sdout, c);
-		for (; b > 0; b--) { for (; a > 0; a--) cout << " "; }
-		SetConsoleCursorPosition(sdout, _Draw);
-		SetConsoleTextAttribute(sdout, temp);
-	}
-}
+
 
 using namespace std;
-using namespace l_n;
+using namespace Display;
 
 
 
@@ -56,69 +15,7 @@ namespace DEFAULT_TIMES {
 	const double FEAST = 11.5;
 	const double GAME = 180.0;
 }
-class timer {
-	
-public:
-	double sample, start, end, remaining;
-	bool isTicking;
 
-	//Constructors
-	timer() {
-		start = sample = end = remaining = 0;
-		isTicking = false;
-	}
-
-
-	//Functions
-	void Draw() {
-		_Draw.X = 47; _Draw.Y = 0;
-		SetColor(_dkgray); setLn();
-		for (int x = 0; x < 18; x++) {
-			cout << "00";
-			_Draw.Y++; setLn();
-		}
-		if (remaining / 1000 > 10) SetColor(_ltgreen);
-		else if (remaining / 1000 > 4) SetColor(_yellow);
-		else SetColor(_ltred);
-		_Draw.X = 47; _Draw.Y = 18;
-		for (int i = 0; i < int((remaining / 1000)*1.3); i++) {
-			setLn(); cout << "00";
-			_Draw.Y--;
-		}
-	}
-	void set() {
-		start = sample = end = remaining = 0;
-		start = GetTickCount();
-		isTicking = true;
-	}
-	void set(double d) {
-		start = sample = end = remaining = 0;
-		start = GetTickCount();
-		end = start + (d * 1000);
-		isTicking = true;
-	}
-	void tick() {
-		if (isTicking) {
-			sample = GetTickCount() - start;
-			if (end != 0) remaining = (end - start) - sample;
-		}
-	}
-	double stop() {
-		tick();
-		if (end == 0) {
-			isTicking = false;
-			return sample;
-		}
-		else if (sample > (end-start)) {
-			isTicking = false;
-			return 1;
-		}
-		else {
-			return remaining;
-		}
-	}
-
-};
 
 
 
@@ -135,8 +32,8 @@ wdw hud_bt(0, 19, 58, 15);
 //Gameboard background?
 wdw ActiveGameBoard_bg(-1, -1, 47, 20);
 
-timer eat_Timer;
-timer Game_Timer;
+Timer eat_Timer;
+Timer Game_Timer;
 
 // MENUS WINDOW DECLARATIONS
 
@@ -150,15 +47,15 @@ string chatPrinting, scorePrinting;
 string chats[6];
 string scores[16];
 
-void chatPrint() {
+void chatPrint(DisplayManager& dsp) {
+	COORD loc { chatbox.loc.X, chatbox.loc.Y };
 	if (chatPrinting.length() == 0);
 	else {
 		if (anim > printAnim) {
-			_Draw.X = chatbox.loc.X;
-			_Draw.Y = chatbox.loc.Y;
-			_Draw.X += (short)chats[0].length();
-			SetColor(ltgreen);
-			setLn(); cout << chatPrinting[0];
+			loc.X += (short)chats[0].length();
+			dsp.SetColor(ltgreen);
+			dsp.setLn(loc); 
+			cout << chatPrinting[0];
 			chats[0] += chatPrinting[0];
 			chatPrinting.replace(0, 1, "");
 			
@@ -167,8 +64,7 @@ void chatPrint() {
 		}
 	}
 }
-void chatPrint(string s) {
-
+void chatPrint(DisplayManager& dsp, string s) {
 	//if already print animation exists, hurry it up!
 	if (chatPrinting.length() != 0) {
 		chats[0] += chatPrinting;
@@ -181,18 +77,22 @@ void chatPrint(string s) {
 	chats[3] = chats[2];
 	chats[2] = chats[1];
 	chats[1] = chats[0];
-	_Draw = chatbox.loc;	//move _Draw COORD to chatbox
+	COORD loc { chatbox.loc.X, chatbox.loc.Y };	//move _Draw COORD to chatbox
 
-	_Draw.Y++;			// clear existing output in DECK2; output new DECK2 string where it belongs
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << chats[1];
+	loc.Y++;			// clear existing output in DECK2; output new DECK2 string where it belongs
+	dsp.SetColor(ltgreen);
+	dsp.setLn(loc); 
+	dsp.clrLn(loc, _black, 54);
+	dsp.setLn(loc); 
+	cout << chats[1];
 	
-	_Draw.Y++;			// clear existing output in ARCHIVE1; output new ARCHIVE1 string where it belongs
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << chats[2]; 
-
+	loc.Y++;			// clear existing output in ARCHIVE1; output new ARCHIVE1 string where it belongs
+	dsp.SetColor(ltgreen);
+	dsp.setLn(loc); 
+	dsp.clrLn(loc, _black, 54);
+	dsp.setLn(loc); 
+	cout << chats[2]; 
+	/*
 	_Draw.Y++;			// clear existing output in ARCHIVE2; output new ARCHIVE2 string where it belongs
 	SetColor(ltgreen);
 	setLn(); clrLn(_black, 54);
@@ -207,9 +107,11 @@ void chatPrint(string s) {
 	SetColor(ltgreen);
 	setLn(); clrLn(_black, 54);
 	setLn(); cout << chats[5];
+	
 
-
-	_Draw.Y -= 5;	  // back up to deck
+	This is a loop. Why have I copied and pasted so many blocks of code up here?
+	*/
+	loc.Y -= 5;	  // back up to deck
 	setLn(); clrLn(_black, 54);
 
 	setLn(); cout << "_";	//set color & output underscore to start new string
@@ -217,7 +119,7 @@ void chatPrint(string s) {
 	chats[0] += "_"; 	 // add said underscore to DECK
 
 }
-void scorePrint() {
+/*void scorePrint() {
 	if (scorePrinting.length() == 0);
 	else {
 		if (anim > printAnim) {
@@ -323,7 +225,7 @@ void scorePrint(string s) {
 	scores[0] += "_"; 	 // add said underscore to DECK
 
 
-}
+}*/
 void scoreScreen();
 
 /*12/26/2021
@@ -378,7 +280,7 @@ void gameSet() {
 	hud_rt.c_outline = _ltgray; 
 	hud_rt.c_fill = ltgray;
 	hud_rt.draw(); 
-	hud_rt.fill(" ");
+	hud_rt.fill();
 
 	scorebox.c_outline = _red; 
 	scorebox.draw();
