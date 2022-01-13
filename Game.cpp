@@ -4,12 +4,8 @@
 #include "Timer.hpp"
 #include "wdw.h"
 
-
-
 using namespace std;
 using namespace Display;
-
-
 
 namespace DEFAULT_TIMES {
 	const double FEAST = 11.5;
@@ -18,7 +14,7 @@ namespace DEFAULT_TIMES {
 
 
 
-
+/*
 // GAMETIME DECLARATIONS
 
 //Window for scrolling in-game announcements and events
@@ -111,14 +107,14 @@ void chatPrint(DisplayManager& dsp, string s) {
 
 	This is a loop. Why have I copied and pasted so many blocks of code up here?
 	*/
-	loc.Y -= 5;	  // back up to deck
+/*	loc.Y -= 5;	  // back up to deck
 	setLn(); clrLn(_black, 54);
 
 	setLn(); cout << "_";	//set color & output underscore to start new string
 	chats[0] = "";			// initialize DECK
 	chats[0] += "_"; 	 // add said underscore to DECK
 
-}
+}*/
 /*void scorePrint() {
 	if (scorePrinting.length() == 0);
 	else {
@@ -226,6 +222,7 @@ void scorePrint(string s) {
 
 
 }*/
+/*
 void scoreScreen();
 
 /*12/26/2021
@@ -234,6 +231,7 @@ void scoreScreen();
   responsibility out to multiple classes/cpp files.
   Details in to-do.
 */
+/*
 void gameSet() {
 	Board ActiveGameBoard;
 
@@ -258,6 +256,8 @@ void gameSet() {
 	 Set to true when something changes, then set to 
 	 false once the discrepancy has been cout / resolved
 	*/
+
+/*
 	bool dBoard, dScore;
 	//Whether or not the user has grabbed a tile
 	//12/26/2021 ==TODO==
@@ -276,6 +276,7 @@ void gameSet() {
 				/* NOTE: _Curs (1,1) refers to ActiveGameBoard.ray[0][0] */
 
 	//set _Draw based on curs and ray location for Cursor
+/*
 	tileGrabbed = dBoard = dScore = false;  //initializing
 	hud_rt.c_outline = _ltgray; 
 	hud_rt.c_fill = ltgray;
@@ -512,7 +513,7 @@ void gameSet() {
 		}
 		//FUNCTION END
 
-		if (/*win conditions here*/0) _Gaming = false;
+		if (/*win conditions here*//*0) _Gaming = false;
 		_Draw.X = 59; 
 		_Draw.Y = 30; 
 		setLn();
@@ -557,7 +558,7 @@ void scoreScreen() {
 
 	system("Pause");
 }
-													
+
 void print_MainMenu() {	
 	SetColor(_black); system("CLS");
 	SetColor(red);
@@ -710,6 +711,7 @@ void print_MainMenu() {
 
 }
 // Everything under the instructions label
+/*
 void instruct() {
 	SetColor(_ltgray);
 	system("CLS");
@@ -770,7 +772,7 @@ int MainMenu() {
 		}
 	}
 }
-int main() 
+int main()
 {
 	system("mode 60, 31");
 	srand((UINT)time(0));
@@ -793,4 +795,4 @@ do {
 	}
 
 	} while (_isRunning);
-}
+}*/

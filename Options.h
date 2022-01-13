@@ -8,7 +8,9 @@
 
 // A fun enum containing text and background colors, as well as _color for solid paint
 enum PAINT
-{	black = 0,
+{
+	null = 0,
+	black = 0,
 	blue = 1,
 	green = 2,
 	teal = 3,
