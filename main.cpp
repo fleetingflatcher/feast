@@ -1,13 +1,14 @@
 #include <conio.h>
-#include "DisplayManager.h"
+#include "Display.h"
+#include "Board.h"
 #include "wdw.h"
+#include "Typewriter.h"
 
+void type(Typewriter&);
 
 int main() {
-	system("mode 60, 31");
-	Display::DisplayManager dspMgr{ 60, 31 };
-	wdw Box{PAINT:: _red, PAINT::_yellow, {5,5}, {11,5} };
-	Box.Draw(dspMgr);
+	Display::Terminal dspMgr{ 60, 31 };
+
 	dspMgr.Reset();
 	_getch();
 }

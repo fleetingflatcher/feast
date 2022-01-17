@@ -1,10 +1,9 @@
 #include "Options.h"
-#include "DisplayManager.h"
-#include "BoardManagement.cpp"
+#include "Display.h"
 #include "Timer.hpp"
 #include "wdw.h"
+#include "Board.h"
 
-using namespace std;
 using namespace Display;
 
 namespace DEFAULT_TIMES {
@@ -12,217 +11,24 @@ namespace DEFAULT_TIMES {
 	const double GAME = 180.0;
 }
 
-
-
-/*
 // GAMETIME DECLARATIONS
 
 //Window for scrolling in-game announcements and events
-wdw chatbox(2, 24, 54, 5);
+wdw chatbox({ 2, 24 }, { 54, 5 });
 //Window for scrolling score change notifications
-wdw scorebox(49, 1, 9, 17);
+wdw scorebox({ 49, 1 }, { 9, 17 });
 //Wrapper window for scorebox and feast timer
-wdw hud_rt(46, -1, 13, 32);
+wdw hud_rt({ 46, -1 }, { 13, 32 });
 //Wrapper window for chatbox and scoreboard/game timer
-wdw hud_bt(0, 19, 58, 15);
+wdw hud_bt({ 0, 19 }, { 58, 15 });
 //Gameboard background?
-wdw ActiveGameBoard_bg(-1, -1, 47, 20);
+wdw ActiveGameBoard_bg({ -1, -1 }, { 47, 20 });
 
 Timer eat_Timer;
 Timer Game_Timer;
 
 // MENUS WINDOW DECLARATIONS
 
-// In-Game variables
-char anim = -10;	
-char printAnim;		
-// These comments are dated but still relevant, I've updated the system to an array "chats[]", and expanded to six lines.
-// Chat string variables; printing is our dynamic feed, 
-//deck archive strings are for each line of the chatbox, the "DECK" (top 2) and "ARCHIVE" (bottom 2), respectively
-string chatPrinting, scorePrinting;
-string chats[6];
-string scores[16];
-
-void chatPrint(DisplayManager& dsp) {
-	COORD loc { chatbox.loc.X, chatbox.loc.Y };
-	if (chatPrinting.length() == 0);
-	else {
-		if (anim > printAnim) {
-			loc.X += (short)chats[0].length();
-			dsp.SetColor(ltgreen);
-			dsp.setLn(loc); 
-			cout << chatPrinting[0];
-			chats[0] += chatPrinting[0];
-			chatPrinting.replace(0, 1, "");
-			
-			if (anim < 7) printAnim = anim;
-			else printAnim = -10;
-		}
-	}
-}
-void chatPrint(DisplayManager& dsp, string s) {
-	//if already print animation exists, hurry it up!
-	if (chatPrinting.length() != 0) {
-		chats[0] += chatPrinting;
-	}
-	chatPrinting = s;	//feed new string into printing
-	printAnim = anim;	//check the time
-
-	chats[5] = chats[4];
-	chats[4] = chats[3];	//cycle storage; move string from DECK to the ARCHIVE
-	chats[3] = chats[2];
-	chats[2] = chats[1];
-	chats[1] = chats[0];
-	COORD loc { chatbox.loc.X, chatbox.loc.Y };	//move _Draw COORD to chatbox
-
-	loc.Y++;			// clear existing output in DECK2; output new DECK2 string where it belongs
-	dsp.SetColor(ltgreen);
-	dsp.setLn(loc); 
-	dsp.clrLn(loc, _black, 54);
-	dsp.setLn(loc); 
-	cout << chats[1];
-	
-	loc.Y++;			// clear existing output in ARCHIVE1; output new ARCHIVE1 string where it belongs
-	dsp.SetColor(ltgreen);
-	dsp.setLn(loc); 
-	dsp.clrLn(loc, _black, 54);
-	dsp.setLn(loc); 
-	cout << chats[2]; 
-	/*
-	_Draw.Y++;			// clear existing output in ARCHIVE2; output new ARCHIVE2 string where it belongs
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << chats[3];
-
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << chats[4];
-
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << chats[5];
-	
-
-	This is a loop. Why have I copied and pasted so many blocks of code up here?
-	*/
-/*	loc.Y -= 5;	  // back up to deck
-	setLn(); clrLn(_black, 54);
-
-	setLn(); cout << "_";	//set color & output underscore to start new string
-	chats[0] = "";			// initialize DECK
-	chats[0] += "_"; 	 // add said underscore to DECK
-
-}*/
-/*void scorePrint() {
-	if (scorePrinting.length() == 0);
-	else {
-		if (anim > printAnim) {
-			_Draw.X = scorebox.loc.X;
-			_Draw.Y = scorebox.loc.Y;
-			_Draw.X += (short)scores[0].length();
-			SetColor(ltred);
-			setLn(); cout << scorePrinting[0];
-			scores[0] += scorePrinting[0];
-			scorePrinting.replace(0, 1, "");
-
-			if (anim < 7) printAnim = anim;
-			else printAnim = -10;
-		}
-	}
-
-}
-void scorePrint(string s) {
-	//if already print animation exists, hurry it up!
-	if (scorePrinting.length() != 0) {
-		scores[0] += scorePrinting;
-	}
-	scorePrinting = s;	//feed new string into printing
-	printAnim = anim;	//check the time
-
-	scores[16] = scores[15];
-	scores[15] = scores[14];
-	scores[14] = scores[13];
-	scores[13] = scores[12];
-	scores[12] = scores[11];
-	scores[11] = scores[10];
-	scores[10] = scores[9];
-	scores[9] = scores[8];
-	scores[8] = scores[7];
-	scores[7] = scores[6];
-	scores[6] = scores[5];
-	scores[5] = scores[4];
-	scores[4] = scores[3];	//cycle storage; move string from DECK to the ARCHIVE
-	scores[3] = scores[2];
-	scores[2] = scores[1];
-	scores[1] = scores[0];
-
-
-	_Draw.X = scorebox.loc.X;	//move _Draw COORD to the scorebox
-	_Draw.Y = scorebox.loc.Y;
-
-	_Draw.Y++;			// clear existing output in DECK2; output new DECK2 string where it belongs
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[1];
-
-	_Draw.Y++;			// clear existing output in ARCHIVE1; output new ARCHIVE1 string where it belongs
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[2];
-
-	_Draw.Y++;			// clear existing output in ARCHIVE2; output new ARCHIVE2 string where it belongs
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[3];
-
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[4];
-
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[5];
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[6];
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[7];
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[8];
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[9];
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[10];
-	_Draw.Y++;
-	SetColor(ltgreen);
-	setLn(); clrLn(_black, 54);
-	setLn(); cout << scores[11];
-
-
-
-	_Draw.Y -= 5;	  // back up to deck
-	setLn(); clrLn(_black, 54);
-
-	setLn(); cout << "_";	//set color & output underscore to start new string
-	scores[0] = "";			// initialize DECK
-	scores[0] += "_"; 	 // add said underscore to DECK
-
-
-}*/
-/*
 void scoreScreen();
 
 /*12/26/2021
@@ -231,22 +37,26 @@ void scoreScreen();
   responsibility out to multiple classes/cpp files.
   Details in to-do.
 */
-/*
+
 void gameSet() {
 	Board ActiveGameBoard;
 
-	if (Game_Timer.isTicking);
+	if (Game_Timer.isTicking) {
+		//Game_Timer.set();
+	}
 	else Game_Timer.set(DEFAULT_TIMES::GAME);
-	cout << endl << "Game board initialized" << endl; Sleep(37);
-	ActiveGameBoard.set();
-	cout << "Game board cleared" << endl; Sleep(37);
-	cout << "Game board generated" << endl; Sleep(37);
-	chatPrinting = chats[0] = chats[1] = chats[2] = chats[3] = chats[4] = chats[5] = "";
-	scorePrinting = scores[0] = scores[1] = scores[2] = scores[3] = scores[4] = scores[5] = 
-		scores[6] = scores[7] = scores[8] = scores[9] = scores[10] = scores[11] = 
-		scores[12] = scores[13] = scores[14] = scores[15] = "";
-	cout << "Chat-related strings initialized" << endl;	Sleep(37);
-	cout << "Score-related strings initialized" << endl; Sleep(37);
+	cout << endl << "Game board initialized" << endl; 
+	Sleep(37);
+	ActiveGameBoard.ResetTiles();
+	cout << "Game board cleared" << endl; 
+	Sleep(37);
+	cout << "Game board generated" << endl; 
+	Sleep(37);
+	
+	//Declare and initialize typewriters.
+	//cout << "Typewriters declared and initialized" << endl;	
+	Sleep(37);
+	
 	// Game Board Cursor, X and Y relate directly to game pieces
 	COORD _Curs;
 	cout << "Game cursor created" << endl; Sleep(37);
@@ -752,7 +562,7 @@ void instruct() {
 	cout << "|tiles on the board are filled and the" << endl;
 	cout << "|current eating is finished." << endl;
 	cout << "|" << endl;
-	cout << "|Once in game, hit R to reset the board. You have three" << endl;
+	cout << "|Once in game, hit R to EndFeast the board. You have three" << endl;
 	cout << "|boards and 3 minutes to get as high a score as possible!" << endl;
 	cout << endl;
 	system("Pause");

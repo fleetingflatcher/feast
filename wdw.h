@@ -1,18 +1,22 @@
 #pragma once
 #include "Options.h"
-#include "DisplayManager.h"
+#include "Display.h"
 
 class wdw
 {
 private: 
 	COORD topLeft;
 	COORD dim; // Width and height
-	PAINT c_outline, c_fill; // Primary color enums
+	Display::PAINT c_outline, c_fill; // Primary color enums
 	bool fill;
 public:
-	wdw(PAINT outlineColor, PAINT fillColor, COORD location, COORD dimensions);
-	wdw(PAINT color, COORD location, COORD dimensions);
+	wdw(Display::PAINT outlineColor, Display::PAINT fillColor, COORD location, COORD dimensions);
+	wdw(Display::PAINT color, COORD location, COORD dimensions);
 	wdw(COORD location, COORD dimensions);
 	
-	void Draw(Display::DisplayManager& dsp);
+	void Draw(Display::Terminal& terminal);
+	short GetWidth();
+	short GetHeight();
+	short GetLocationX();
+	short GetLocationY();
 };

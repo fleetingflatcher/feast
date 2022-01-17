@@ -1,58 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <vector>
 #include <cmath>
-
-// A fun enum containing text and background colors, as well as _color for solid paint
-enum PAINT
-{
-	null = 0,
-	black = 0,
-	blue = 1,
-	green = 2,
-	teal = 3,
-	red = 4,
-	purple = 5,
-	ltgray = 7,
-	dkgray = 8,
-	ltblue = 9,
-	ltgreen = 10,
-	ltred = 12,
-	pink = 13,
-	yellow = 14,
-	white = 15,
-	bgblack = 0,
-	bgblue = 16,
-	bggreen = 32,
-	bgteal = 48,
-	bgred = 64,
-	bgpurple = 80,
-	bgltgray = 112,
-	bgdkgray = 128,
-	bgltblue = 144,
-	bgltgreen = 160,
-	bgltred = 192,
-	bgpink = 208,
-	bgyellow = 224,
-	bgwhite = 240,
-	_black = black + bgblack,
-	_blue = blue + bgblue,
-	_green = green + bggreen,
-	_teal = teal + bgteal,
-	_red = red + bgred,
-	_purple = purple + bgpurple,
-	_ltgray = ltgray + bgltgray,
-	_ltgreen = ltgreen + bgltgreen,
-	_dkgray = dkgray + bgdkgray,
-	_ltblue = ltblue + bgltblue,
-	_ltred = ltred + bgltred,
-	_pink = pink + bgpink,
-	_yellow = yellow + bgyellow,
-	_white = white + bgwhite
-};
 
 //Anonymous Namespace of Global Declaration
 namespace {

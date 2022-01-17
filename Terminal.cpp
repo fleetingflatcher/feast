@@ -1,38 +1,46 @@
-#include "DisplayManager.h"
+#include "Display.h"
+#include <sstream>
 
-Display::DisplayManager::DisplayManager(int w, int h) :
+Display::Terminal::Terminal(int w, int h) :
 	sdout(GetStdHandle(STD_OUTPUT_HANDLE)),
 	loc({ 0,0 }),
 	paint(PAINT::_white),
 	width(w),
 	height(h)
-{};
+{
+	ostringstream stream;
+	stream << "mode " << w << ", " << h;
+	system(stream.str().c_str());
+};
 
-void Display::DisplayManager::DrawPixel(COORD at, PAINT p, char ch) {
-	loc = at;
-	paint = p;
-	prepTerminal();
-	cout << ch;
+void Display::Terminal::DrawPixel(COORD at, PAINT p, char ch) {
+	if (at.X > 0 && at.Y > 0 && at.X < width && at.Y < height) {
+		loc = at;
+		paint = p;
+		prepTerminal();
+		cout << ch;
+	}
 }
-void Display::DisplayManager::DrawPixel(int x, int y, PAINT p, char ch) {
+void Display::Terminal::DrawPixel(int x, int y, PAINT p, char ch) {
 	COORD location{ x, y };
-	Display::DisplayManager::DrawPixel(location, p, ch);
+	Display::Terminal::DrawPixel(location, p, ch);
 }
 
-void Display::DisplayManager::DrawChar(COORD at, char c, PAINT p) {
+void Display::Terminal::DrawChar(COORD at, char c, PAINT p) {
 	loc = at;
 	paint = p;
 	prepTerminal();
 	cout << c;
 }
-void Display::DisplayManager::DrawString(COORD at, std::string s, PAINT p) {
+void Display::Terminal::DrawString(COORD at, std::string s, PAINT p) {
 	loc = at;
 	paint = p;
 	prepTerminal();
 	cout << s;
 }
-
-void Display::DisplayManager::DrawBox(COORD topLeft, short width, short height, PAINT p) {
+/* TODO: these functions do zero error handling.
+May break if drawing outside the terminal space.*/
+void Display::Terminal::DrawBox(COORD topLeft, short width, short height, PAINT p) {
 	loc = topLeft;
 	paint = p;
 	prepTerminal();
@@ -55,10 +63,10 @@ void Display::DisplayManager::DrawBox(COORD topLeft, short width, short height, 
 		cout << "0";
 	}
 }
-void Display::DisplayManager::DrawBox(COORD topLeft, COORD dimensions, PAINT p) {
-	Display::DisplayManager::DrawBox(topLeft, dimensions.X, dimensions.Y, p);
+void Display::Terminal::DrawBox(COORD topLeft, COORD dimensions, PAINT p) {
+	Display::Terminal::DrawBox(topLeft, dimensions.X, dimensions.Y, p);
 }
-void Display::DisplayManager::FillBox(COORD topLeft, short width, short height, PAINT p) {
+void Display::Terminal::FillBox(COORD topLeft, short width, short height, PAINT p) {
 	loc = topLeft;
 	paint = p;
 	prepTerminal();
@@ -72,29 +80,29 @@ void Display::DisplayManager::FillBox(COORD topLeft, short width, short height, 
 		prepTerminal();
 	}
 }
-void Display::DisplayManager::FillBox(COORD topLeft, COORD dimensions, PAINT p) {
-	Display::DisplayManager::FillBox(topLeft, dimensions.X, dimensions.Y, p);
+void Display::Terminal::FillBox(COORD topLeft, COORD dimensions, PAINT p) {
+	Display::Terminal::FillBox(topLeft, dimensions.X, dimensions.Y, p);
 }
 
 
-void Display::DisplayManager::SetColor(PAINT p) {
+void Display::Terminal::SetColor(PAINT p) {
 	paint = p;
 }
-void Display::DisplayManager::SetColor(PAINT bg, PAINT fg) {
+void Display::Terminal::SetColor(PAINT bg, PAINT fg) {
 	short c = bg + fg;
 	paint = (PAINT)c;
 }
 
 //	Planned Private method definitions
-void Display::DisplayManager::setLn(COORD c) {
+void Display::Terminal::setLn(COORD c) {
 	SetConsoleCursorPosition(sdout, c);
 }
-void Display::DisplayManager::clrLn(COORD c, int a) {
+void Display::Terminal::clrLn(COORD c, int a) {
 	SetConsoleCursorPosition(sdout, c);
 	for (; a > 0; a--) cout << " ";
 	SetConsoleCursorPosition(sdout, c);
 }
-void Display::DisplayManager::clrLn(COORD c, int a, int b) {
+void Display::Terminal::clrLn(COORD c, int a, int b) {
 	SetConsoleCursorPosition(sdout, c);
 	for (int y = b; y > 0; y--) {
 		for (int x = a; x > 0; x--)
@@ -103,7 +111,7 @@ void Display::DisplayManager::clrLn(COORD c, int a, int b) {
 	}
 	SetConsoleCursorPosition(sdout, c);
 }
-void Display::DisplayManager::clrLn(COORD c, PAINT p, int a) {
+void Display::Terminal::clrLn(COORD c, PAINT p, int a) {
 	SetConsoleCursorPosition(sdout, c);
 	CONSOLE_SCREEN_BUFFER_INFO info; short temp;
 	GetConsoleScreenBufferInfo(sdout, &info); temp = info.wAttributes;
@@ -112,7 +120,7 @@ void Display::DisplayManager::clrLn(COORD c, PAINT p, int a) {
 	SetConsoleCursorPosition(sdout, c);
 	SetConsoleTextAttribute(sdout, temp);
 }
-void Display::DisplayManager::clrLn(COORD c, PAINT p, int a, int b) {
+void Display::Terminal::clrLn(COORD c, PAINT p, int a, int b) {
 	SetConsoleCursorPosition(sdout, c);
 	CONSOLE_SCREEN_BUFFER_INFO info; short temp;
 	GetConsoleScreenBufferInfo(sdout, &info); temp = info.wAttributes;
@@ -124,13 +132,13 @@ void Display::DisplayManager::clrLn(COORD c, PAINT p, int a, int b) {
 
 //	Private Method definitions
 
-void Display::DisplayManager::prepTerminal() {
+void Display::Terminal::prepTerminal() {
 	SetConsoleCursorPosition(sdout, loc);
 	SetConsoleTextAttribute(sdout, paint);
 }
-void Display::DisplayManager::Reset() {
+void Display::Terminal::Reset() {
 	resetTerminal();
 }
-void Display::DisplayManager::resetTerminal() {
+void Display::Terminal::resetTerminal() {
 	SetConsoleTextAttribute(sdout, PAINT::_black);
 }

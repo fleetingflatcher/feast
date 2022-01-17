@@ -3,7 +3,6 @@
 #include <Windows.h>
 
 class Timer {
-
 public:
 	double sample, start, end, remaining;
 	bool isTicking;
